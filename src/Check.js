@@ -1,13 +1,13 @@
-import React, { Component } from "react";
+import React from "react";
 
-class Check extends Component {
+class Check extends React.Component {
   render() {
     const { task, isDone, handleUpdate, id } = this.props;
     return (
-      <div className={`task-row ${isDone && "done"}`}>
+      <div>
         <input
           type="checkbox"
-          onClick={() => handleUpdate(id, task, isDone)}
+          onClick={() => handleUpdate(id)}
           checked={isDone}
         />
         {task}

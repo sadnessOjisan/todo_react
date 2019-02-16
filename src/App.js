@@ -1,95 +1,70 @@
-import React, { Component } from "react";
+import React from "react";
 import Check from "./Check";
-import Form from "./Form";
-import "./App.css";
 
-const HOST_URL = "http://localhost:3000";
-
-class App extends Component {
+class App extends React.Component {
   state = {
     todos: [],
     isFiltered: false
   };
 
-  async componentDidMount() {
-    const response = await fetch(`${HOST_URL}/todos`, {
-      method: "GET"
-    });
-    const data = await response.json();
-    this.setState({ todos: data });
-  }
-
   handleToggleFilter = e => {
     this.setState({ isFiltered: !this.state.isFiltered });
   };
 
-  async handleSubmit(e) {
+  handleSubmit = e => {
     e.preventDefault();
-    const inputed = e.target["todo"].value;
-    const response = await fetch(`${HOST_URL}/todos`, {
-      method: "POST",
-      body: JSON.stringify({
-        task: inputed,
-        isDone: false
-      }),
-      headers: {
-        "content-type": "application/json"
-      }
-    });
-    const data = await response.json();
+    const inputed = e.target["task"].value;
+    const newTodo = {
+      id: _genUUID(),
+      task: inputed,
+      isDone: false
+    };
     this.setState({
-      todos: [...this.state.todos, data]
+      todos: [...this.state.todos, newTodo]
     });
-  }
+  };
 
-  async handleUpdateTaskStatus(id, task, currentStatus) {
-    const nextStatus = !currentStatus;
-    const response = await fetch(`${HOST_URL}/todos/${id}`, {
-      method: "PUT",
-      body: JSON.stringify({
-        task,
-        isDone: nextStatus
-      }),
-      headers: {
-        "content-type": "application/json"
-      }
-    });
-    const data = await response.json();
-    this.setState({
-      todos: this.state.todos.map(todo => (todo.id === id ? data : todo))
-    });
-  }
+  handleUpdateTaskStatus = id => {
+    const updatedTodos = this.state.todos.map(todo =>
+      todo.id === id ? { ...todo, isDone: !todo.isDone } : todo
+    );
+    this.setState({ todos: updatedTodos });
+  };
 
   render() {
     const { todos, isFiltered } = this.state;
-    const filteredTodos = isFiltered
-      ? todos.filter(todo => !todo.isDone)
-      : todos;
     return (
-      <div>
-        <h1>Todo</h1>
-        <Form handleSubmit={e => this.handleSubmit(e)} />
+      <center>
+        <h1>TODO</h1>
+        <form onSubmit={this.handleSubmit}>
+          <input name="task" />
+          <button type="submit">送信</button>
+        </form>
         <button onClick={this.handleToggleFilter}>
-          フィルター
-          {isFiltered ? "ONです" : "OFFです"}
+          filterは{isFiltered ? "on" : "off"}です。
         </button>
+        <p>残りタスクは{todos.filter(todo => !todo.isDone).length}個です。</p>
         <p>
-          残り
-          {todos.filter(todo => !todo.isDone).length}個
+          {todos
+            .filter(todo => (isFiltered ? !todo.isDone : true))
+            .map(todo => (
+              <Check
+                id={todo.id}
+                task={todo.task}
+                isDone={todo.isDone}
+                handleUpdate={this.handleUpdateTaskStatus}
+              />
+            ))}
         </p>
-        {filteredTodos.map(d => (
-          <Check
-            id={d.id}
-            task={d.task}
-            isDone={d.isDone}
-            handleUpdate={(id, task, isDone) =>
-              this.handleUpdateTaskStatus(id, task, isDone)
-            }
-          />
-        ))}
-      </div>
+      </center>
     );
   }
 }
 
 export default App;
+
+const _genUUID = () => {
+  return Math.random() // randomなidを生成しています
+    .toString(36)
+    .slice(-8);
+};
