@@ -1,6 +1,6 @@
 # todo_react
 
-React ハンズオンの教材コード
+12/19 時点の React ハンズオンの教材コード。
 
 [HELL_todo_jquery](https://github.com/sadnessOjisan/HELL_todo_jquery)や[ES6_todo_jQuery](https://github.com/sadnessOjisan/ES6_todo_jQuery)を `React` で書き直したもの.
 
